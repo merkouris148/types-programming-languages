@@ -1,0 +1,154 @@
+   0  $accept : %entry% $end
+
+   1  main : expr EOF
+
+   2  expr : LAMBDA IDENT DOT expr
+   3       | app_expr
+
+   4  app_expr : aexp
+   5           | app_expr aexp
+
+   6  aexp : IDENT
+   7       | LPAREN expr RPAREN
+
+   8  %entry% : '\001' main
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . main  (8)
+
+	IDENT  shift 3
+	LPAREN  shift 4
+	LAMBDA  shift 5
+	.  error
+
+	main  goto 6
+	expr  goto 7
+	app_expr  goto 8
+	aexp  goto 9
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	aexp : IDENT .  (6)
+
+	.  reduce 6
+
+
+state 4
+	aexp : LPAREN . expr RPAREN  (7)
+
+	IDENT  shift 3
+	LPAREN  shift 4
+	LAMBDA  shift 5
+	.  error
+
+	expr  goto 10
+	app_expr  goto 8
+	aexp  goto 9
+
+
+state 5
+	expr : LAMBDA . IDENT DOT expr  (2)
+
+	IDENT  shift 11
+	.  error
+
+
+state 6
+	%entry% : '\001' main .  (8)
+
+	.  reduce 8
+
+
+state 7
+	main : expr . EOF  (1)
+
+	EOF  shift 12
+	.  error
+
+
+state 8
+	expr : app_expr .  (3)
+	app_expr : app_expr . aexp  (5)
+
+	IDENT  shift 3
+	LPAREN  shift 4
+	EOF  reduce 3
+	RPAREN  reduce 3
+
+	aexp  goto 13
+
+
+state 9
+	app_expr : aexp .  (4)
+
+	.  reduce 4
+
+
+state 10
+	aexp : LPAREN expr . RPAREN  (7)
+
+	RPAREN  shift 14
+	.  error
+
+
+state 11
+	expr : LAMBDA IDENT . DOT expr  (2)
+
+	DOT  shift 15
+	.  error
+
+
+state 12
+	main : expr EOF .  (1)
+
+	.  reduce 1
+
+
+state 13
+	app_expr : app_expr aexp .  (5)
+
+	.  reduce 5
+
+
+state 14
+	aexp : LPAREN expr RPAREN .  (7)
+
+	.  reduce 7
+
+
+state 15
+	expr : LAMBDA IDENT DOT . expr  (2)
+
+	IDENT  shift 3
+	LPAREN  shift 4
+	LAMBDA  shift 5
+	.  error
+
+	expr  goto 16
+	app_expr  goto 8
+	aexp  goto 9
+
+
+state 16
+	expr : LAMBDA IDENT DOT expr .  (2)
+
+	.  reduce 2
+
+
+10 terminals, 6 nonterminals
+9 grammar rules, 17 states

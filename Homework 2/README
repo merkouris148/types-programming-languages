@@ -1,0 +1,62 @@
+CS546: http://www.csd.uoc.gr/~hy546/
+
+Homework 2: A lambda calculus interpreter
+=========================================
+
+This directory contains the following files:
+  README     - This file
+  ast.ml     - The definition of the abstract syntax tree
+  lexer.mll  - The ocamllex input file for generating the lexer
+  parser.mly - The ocamlyacc input file describing the grammar, used
+                to generate parser.mli (the parser interface) and
+                parser.ml (the parser implementation)
+  main.ml    - Contains a couple of helper functions to parse the
+               stdin and generate an AST, or to generate an AST from a
+               string
+  Makefile   - A makefile that compiles source files to object files
+               (.cmo and .cmi) and also generates a.out (which does
+               nothing).
+
+To have a.out parse stdin (and do nothing else), uncomment the last
+line in main.ml
+
+To play around with the parser try running it in the interpreter:
+----------
+  $ make
+  ocamlyacc -v parser.mly
+  ocamllex lexer.mll
+  11 states, 361 transitions, table size 1510 bytes
+  ocamlc ast.ml parser.mli lexer.ml parser.ml main.ml 
+  $ ocaml
+          Objective Caml version 3.11.2
+
+  # #load "ast.cmo";;
+  # #load "lexer.cmo";;
+  # #load "parser.cmo";;
+  # #load "main.cmo";;
+  # open Main;;
+  # open Ast;;
+  # ast_of_string "fun x . x";;
+  - : Ast.exp = EVal (VFun ("x", EVar "x"))
+  # #quit;;
+  $
+----------
+
+The homework is to implement the functions  declared in homework2.mli,
+in a file homework2.ml.  You shouldn't need to change any of the other
+files.
+
+Submit homework2.ml by email, using a Subject line containing [HY546].
+
+To compile your homework, uncomment line 8 in the Makefile to compile
+homework.mli and homework.ml into the corresponding .cmi and .cmo
+files.  If you use computation at the top-level in homework.ml to test
+your functions, please remove/comment it before submitting.
+
+To test your homework, try the examples we saw in the class
+Successor of 1:
+  "(fun n. fun s. fun z. n s (s z)) (fun s.fun z. s z)"
+alternatively:
+  "(fun n. fun s. fun z. s (n s z))) (fun s.fun z. s z)"
+etc.
+NOTE: Interpreters B and C will not reduce these completely to 2.
