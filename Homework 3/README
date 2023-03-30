@@ -1,0 +1,69 @@
+CS546 - http://www.csd.uoc.gr/~hy546/
+
+Homework 3: A lambda calculus type checker
+==========================================
+
+This directory contains the following files:
+  README      - This file
+  ast.ml      - The definition of the abstract syntax tree and some
+                utility functions
+  lexer.mll   - The ocamllex input file for generating the lexer
+  parser.mly  - The ocamlyacc input file describing the grammar, used
+                to generate parser.mli (the parser interface) and
+                parser.ml (the parser implementation)
+  main.ml     - Contains a couple of helper functions to parse the
+                stdin and generate an AST, or to generate an AST from a
+                string.  Uncomment the last lines to parse and type
+                stdin.
+  Makefile    - A makefile that compiles source files to object files
+                (.cmo and .cmi) and also generates hw3 (which does
+                nothing).  Uncomment the last lines in main.ml to have
+                hw3 parse and type its input (required for "make
+                tests" to work).
+  *.490       - Each .490 file contains a parseable language term.
+  *.out       - Each .out file contains the expected output of hw3 for
+                the corresponding .490 file.  Use "make tests" to run
+                all tests and diff against the expected output.
+
+To have a.out parse stdin (and do nothing else), uncomment the last
+line in main.ml
+
+To play around with the parser try running it in the interpreter:
+----------
+  $ make
+  ocamlyacc -v parser.mly
+  ocamllex lexer.mll
+  11 states, 361 transitions, table size 1510 bytes
+  ocamlc ast.ml parser.mli lexer.ml parser.ml main.ml 
+  $ ocaml
+          Objective Caml version 3.11.2
+
+  # #load "ast.cmo";;
+  # #load "lexer.cmo";;
+  # #load "parser.cmo";;
+  # #load "main.cmo";;
+  # open Main;;
+  # open Ast;;
+  # let one = (ast_of_string "fun s:Bool->Bool. fun z:Bool. s z")
+  val one : Ast.exp =
+    EVal
+     (VFun ("s", TFun (TBool, TBool),
+  EVal (VFun ("z", TBool, EApp (EVar "s", EVar "z")))))
+  # string_of_ast one;;
+  - : Ast.var = "(fun s : Bool -> Bool . (fun z : Bool . (s z)))"
+  # typeof [] one;;
+  - : Ast.typ = TFun (TFun (TBool, TBool), TFun (TBool, TBool))
+  # string_of_typ (typeof [] one);;
+  - : string = "(Bool -> Bool) -> Bool -> Bool"
+  #quit;;
+  $
+----------
+
+The homework is to implement the functions  declared in homework3.mli,
+in a file homework3.ml.  You shouldn't need to change any of the other
+files.  Submit homework3.ml.
+
+Use the provided Makefile to compile homework.ml and the provided
+files into the corresponding .cmi and .cmo files.  If you use
+computation at the top-level in homework3.ml to test your functions,
+please remove/comment it before submitting.

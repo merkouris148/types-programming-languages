@@ -1,0 +1,435 @@
+   0  $accept : %entry% $end
+
+   1  main : expr EOF
+
+   2  typ : typ ARROW typ
+   3      | BOOL
+   4      | TUNIT
+   5      | LPAREN typ RPAREN
+
+   6  expr : LAMBDA IDENT COLON typ DOT expr
+   7       | app_expr
+   8       | seq_expr
+   9       | IF expr THEN expr ELSE expr
+
+  10  seq_expr : aexp
+  11           | expr SEMICOLON expr
+
+  12  app_expr : aexp
+  13           | app_expr aexp
+
+  14  aexp : IDENT
+  15       | TRUE
+  16       | FALSE
+  17       | UNIT
+  18       | LPAREN expr RPAREN
+
+  19  %entry% : '\001' main
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . main  (19)
+
+	IDENT  shift 3
+	UNIT  shift 4
+	LPAREN  shift 5
+	LAMBDA  shift 6
+	IF  shift 7
+	TRUE  shift 8
+	FALSE  shift 9
+	.  error
+
+	main  goto 10
+	expr  goto 11
+	app_expr  goto 12
+	seq_expr  goto 13
+	aexp  goto 14
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	aexp : IDENT .  (14)
+
+	.  reduce 14
+
+
+state 4
+	aexp : UNIT .  (17)
+
+	.  reduce 17
+
+
+state 5
+	aexp : LPAREN . expr RPAREN  (18)
+
+	IDENT  shift 3
+	UNIT  shift 4
+	LPAREN  shift 5
+	LAMBDA  shift 6
+	IF  shift 7
+	TRUE  shift 8
+	FALSE  shift 9
+	.  error
+
+	expr  goto 15
+	app_expr  goto 12
+	seq_expr  goto 13
+	aexp  goto 14
+
+
+state 6
+	expr : LAMBDA . IDENT COLON typ DOT expr  (6)
+
+	IDENT  shift 16
+	.  error
+
+
+state 7
+	expr : IF . expr THEN expr ELSE expr  (9)
+
+	IDENT  shift 3
+	UNIT  shift 4
+	LPAREN  shift 5
+	LAMBDA  shift 6
+	IF  shift 7
+	TRUE  shift 8
+	FALSE  shift 9
+	.  error
+
+	expr  goto 17
+	app_expr  goto 12
+	seq_expr  goto 13
+	aexp  goto 14
+
+
+state 8
+	aexp : TRUE .  (15)
+
+	.  reduce 15
+
+
+state 9
+	aexp : FALSE .  (16)
+
+	.  reduce 16
+
+
+state 10
+	%entry% : '\001' main .  (19)
+
+	.  reduce 19
+
+
+state 11
+	main : expr . EOF  (1)
+	seq_expr : expr . SEMICOLON expr  (11)
+
+	EOF  shift 18
+	SEMICOLON  shift 19
+	.  error
+
+
+state 12
+	expr : app_expr .  (7)
+	app_expr : app_expr . aexp  (13)
+
+	IDENT  shift 3
+	UNIT  shift 4
+	LPAREN  shift 5
+	TRUE  shift 8
+	FALSE  shift 9
+	EOF  reduce 7
+	SEMICOLON  reduce 7
+	RPAREN  reduce 7
+	THEN  reduce 7
+	ELSE  reduce 7
+
+	aexp  goto 20
+
+
+state 13
+	expr : seq_expr .  (8)
+
+	.  reduce 8
+
+
+14: reduce/reduce conflict (reduce 10, reduce 12) on EOF
+14: reduce/reduce conflict (reduce 10, reduce 12) on SEMICOLON
+14: reduce/reduce conflict (reduce 10, reduce 12) on RPAREN
+14: reduce/reduce conflict (reduce 10, reduce 12) on THEN
+14: reduce/reduce conflict (reduce 10, reduce 12) on ELSE
+state 14
+	seq_expr : aexp .  (10)
+	app_expr : aexp .  (12)
+
+	EOF  reduce 10
+	IDENT  reduce 12
+	UNIT  reduce 12
+	SEMICOLON  reduce 10
+	LPAREN  reduce 12
+	RPAREN  reduce 10
+	THEN  reduce 10
+	ELSE  reduce 10
+	TRUE  reduce 12
+	FALSE  reduce 12
+
+
+state 15
+	seq_expr : expr . SEMICOLON expr  (11)
+	aexp : LPAREN expr . RPAREN  (18)
+
+	SEMICOLON  shift 19
+	RPAREN  shift 21
+	.  error
+
+
+state 16
+	expr : LAMBDA IDENT . COLON typ DOT expr  (6)
+
+	COLON  shift 22
+	.  error
+
+
+state 17
+	expr : IF expr . THEN expr ELSE expr  (9)
+	seq_expr : expr . SEMICOLON expr  (11)
+
+	SEMICOLON  shift 19
+	THEN  shift 23
+	.  error
+
+
+state 18
+	main : expr EOF .  (1)
+
+	.  reduce 1
+
+
+state 19
+	seq_expr : expr SEMICOLON . expr  (11)
+
+	IDENT  shift 3
+	UNIT  shift 4
+	LPAREN  shift 5
+	LAMBDA  shift 6
+	IF  shift 7
+	TRUE  shift 8
+	FALSE  shift 9
+	.  error
+
+	expr  goto 24
+	app_expr  goto 12
+	seq_expr  goto 13
+	aexp  goto 14
+
+
+state 20
+	app_expr : app_expr aexp .  (13)
+
+	.  reduce 13
+
+
+state 21
+	aexp : LPAREN expr RPAREN .  (18)
+
+	.  reduce 18
+
+
+state 22
+	expr : LAMBDA IDENT COLON . typ DOT expr  (6)
+
+	TUNIT  shift 25
+	LPAREN  shift 26
+	BOOL  shift 27
+	.  error
+
+	typ  goto 28
+
+
+state 23
+	expr : IF expr THEN . expr ELSE expr  (9)
+
+	IDENT  shift 3
+	UNIT  shift 4
+	LPAREN  shift 5
+	LAMBDA  shift 6
+	IF  shift 7
+	TRUE  shift 8
+	FALSE  shift 9
+	.  error
+
+	expr  goto 29
+	app_expr  goto 12
+	seq_expr  goto 13
+	aexp  goto 14
+
+
+24: shift/reduce conflict (shift 19, reduce 11) on SEMICOLON
+state 24
+	seq_expr : expr . SEMICOLON expr  (11)
+	seq_expr : expr SEMICOLON expr .  (11)
+
+	SEMICOLON  shift 19
+	EOF  reduce 11
+	RPAREN  reduce 11
+	THEN  reduce 11
+	ELSE  reduce 11
+
+
+state 25
+	typ : TUNIT .  (4)
+
+	.  reduce 4
+
+
+state 26
+	typ : LPAREN . typ RPAREN  (5)
+
+	TUNIT  shift 25
+	LPAREN  shift 26
+	BOOL  shift 27
+	.  error
+
+	typ  goto 30
+
+
+state 27
+	typ : BOOL .  (3)
+
+	.  reduce 3
+
+
+state 28
+	typ : typ . ARROW typ  (2)
+	expr : LAMBDA IDENT COLON typ . DOT expr  (6)
+
+	DOT  shift 31
+	ARROW  shift 32
+	.  error
+
+
+state 29
+	expr : IF expr THEN expr . ELSE expr  (9)
+	seq_expr : expr . SEMICOLON expr  (11)
+
+	SEMICOLON  shift 19
+	ELSE  shift 33
+	.  error
+
+
+state 30
+	typ : typ . ARROW typ  (2)
+	typ : LPAREN typ . RPAREN  (5)
+
+	RPAREN  shift 34
+	ARROW  shift 32
+	.  error
+
+
+state 31
+	expr : LAMBDA IDENT COLON typ DOT . expr  (6)
+
+	IDENT  shift 3
+	UNIT  shift 4
+	LPAREN  shift 5
+	LAMBDA  shift 6
+	IF  shift 7
+	TRUE  shift 8
+	FALSE  shift 9
+	.  error
+
+	expr  goto 35
+	app_expr  goto 12
+	seq_expr  goto 13
+	aexp  goto 14
+
+
+state 32
+	typ : typ ARROW . typ  (2)
+
+	TUNIT  shift 25
+	LPAREN  shift 26
+	BOOL  shift 27
+	.  error
+
+	typ  goto 36
+
+
+state 33
+	expr : IF expr THEN expr ELSE . expr  (9)
+
+	IDENT  shift 3
+	UNIT  shift 4
+	LPAREN  shift 5
+	LAMBDA  shift 6
+	IF  shift 7
+	TRUE  shift 8
+	FALSE  shift 9
+	.  error
+
+	expr  goto 37
+	app_expr  goto 12
+	seq_expr  goto 13
+	aexp  goto 14
+
+
+state 34
+	typ : LPAREN typ RPAREN .  (5)
+
+	.  reduce 5
+
+
+35: shift/reduce conflict (shift 19, reduce 6) on SEMICOLON
+state 35
+	expr : LAMBDA IDENT COLON typ DOT expr .  (6)
+	seq_expr : expr . SEMICOLON expr  (11)
+
+	SEMICOLON  shift 19
+	EOF  reduce 6
+	RPAREN  reduce 6
+	THEN  reduce 6
+	ELSE  reduce 6
+
+
+state 36
+	typ : typ . ARROW typ  (2)
+	typ : typ ARROW typ .  (2)
+
+	ARROW  shift 32
+	RPAREN  reduce 2
+	DOT  reduce 2
+
+
+37: shift/reduce conflict (shift 19, reduce 9) on SEMICOLON
+state 37
+	expr : IF expr THEN expr ELSE expr .  (9)
+	seq_expr : expr . SEMICOLON expr  (11)
+
+	SEMICOLON  shift 19
+	EOF  reduce 9
+	RPAREN  reduce 9
+	THEN  reduce 9
+	ELSE  reduce 9
+
+
+State 14 contains 5 reduce/reduce conflicts.
+State 24 contains 1 shift/reduce conflict.
+State 35 contains 1 shift/reduce conflict.
+State 37 contains 1 shift/reduce conflict.
+
+
+24 terminals, 8 nonterminals
+20 grammar rules, 38 states
